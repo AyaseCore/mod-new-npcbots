@@ -4,3 +4,5 @@ CU_ADD_HOOK(BEFORE_GAME_LIBRARY "${CMAKE_MOD_NEW_NPCBOTS_DIR}/cmake/before_game_
 CU_ADD_HOOK(BEFORE_SCRIPTS_LIBRARY "${CMAKE_MOD_NEW_NPCBOTS_DIR}/cmake/before_scripts_lib.cmake")
 
 AC_ADD_CONFIG_FILE("${CMAKE_MOD_NEW_NPCBOTS_DIR}/conf/newnpcbots.conf.dist")
+
+message("机器人模块启用.")

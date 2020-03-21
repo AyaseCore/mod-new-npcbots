@@ -13,6 +13,7 @@
 #include "LFGMgr.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
+#include "FreedomCore.h"
 /*
 NpcBot System by Trickerer (https://bitbucket.org/trickerer/trinity-bots; onlysuffering@gmail.com)
 Original idea: https://bitbucket.org/lordpsyan/trinitycore-patches/src/3b8b9072280e/Individual/11185-BOTS-NPCBots.patch
@@ -1067,7 +1068,7 @@ void bot_ai::RezGroup(uint32 REZZ)
         if (doCast(target, REZZ)) //rezzing it
         {
             if (Player const* player = playerOrCorpse->GetTypeId() == TYPEID_PLAYER ? playerOrCorpse->ToPlayer() : sObjectAccessor->FindPlayer(playerOrCorpse->ToCorpse()->GetOwnerGUID()))
-                BotWhisper("Rezzing You", player);
+                BotWhisper(FCSL("Rezzing You"), player);
         }
 
         return;
@@ -1093,7 +1094,7 @@ void bot_ai::RezGroup(uint32 REZZ)
             me->Relocate(*target);
 
         if (doCast(target, REZZ))//rezzing it
-            BotWhisper("Rezzing You");
+            BotWhisper(FCSL("Rezzing You"));
 
         return;
     }
@@ -1127,10 +1128,10 @@ void bot_ai::RezGroup(uint32 REZZ)
 
         if (doCast(target, REZZ))//rezzing it
         {
-            BotWhisper("Rezzing You", player);
+            BotWhisper(FCSL("Rezzing You"), player);
             if (player != master)
             {
-                std::string rezstr = "Rezzing ";
+                std::string rezstr = FCSL("Rezzing ");
                 rezstr += player->GetName();
                 BotWhisper(rezstr.c_str());
             }
@@ -1169,22 +1170,22 @@ void bot_ai::RezGroup(uint32 REZZ)
         Player const* targetOwner = target->ToCreature()->GetBotOwner();
         if (targetOwner != master)
         {
-            std::string rezstr1 = "Rezzing ";
+            std::string rezstr1 = FCSL("Rezzing ");
             rezstr1 += target->GetName();
-            rezstr1 += " (your bot)";
+            rezstr1 += FCSL(" (your bot)");
 
-            std::string rezstr2 = "Rezzing ";
+            std::string rezstr2 = FCSL("Rezzing ");
             rezstr2 += target->GetName();
             rezstr2 += " (";
             rezstr2 += targetOwner->GetName();
-            rezstr2 += "'s bot)";
+            rezstr2 += FCSL("'s bot)");
 
             BotWhisper(rezstr1.c_str(), targetOwner);
             BotWhisper(rezstr2.c_str());
         }
         else
         {
-            std::string rezstr3 = "Rezzing ";
+            std::string rezstr3 = FCSL("Rezzing ");
             rezstr3 += target->GetName();
             BotWhisper(rezstr3.c_str());
         }
@@ -1472,15 +1473,15 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
     std::ostringstream botstring;
     botstring.setf(std::ios_base::fixed);
     uint32 const bot_pet_player_class = unit->GetTypeId() == TYPEID_PLAYER ? unit->getClass() : unit->ToCreature()->GetBotAI()->GetBotClass();
-    botstring << "ListAuras for " << unit->GetName() << " (class: " << uint32(bot_pet_player_class) << "), ";
+    botstring << acore::StringFormat(FCSL("ListAuras for %s (class: %s ),"), unit->GetName(), uint32(bot_pet_player_class));
     if (unit->GetTypeId() == TYPEID_PLAYER)
-        botstring << "player";
+        botstring << FCSL("player");
     else if (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->IsNPCBot())
     {
         bot_ai const* ai = unit->ToCreature()->GetBotAI();
-        botstring << "master: ";
+        botstring << FCSL("master: ");
         Player const* owner = ai->GetBotOwner();
-        botstring << (owner != unit ? owner->GetName() : "none");
+        botstring << (owner != unit ? owner->GetName() : FCSL("none"));
     }
     uint8 locale = player->GetSession()->GetSessionDbcLocale();
     Unit::AuraMap const &vAuras = unit->GetOwnedAuras();
@@ -1503,18 +1504,18 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
         else if (spellInfo->GetNextRankSpell() || spellInfo->GetPrevRankSpell())
             rank = spellInfo->GetRank();
         if (rank > 0)
-            botstring << " Rank " << rank;
+            botstring << FCSL(" Rank ") << rank;
         if (talentcost > 0)
-            botstring << " [talent]";
+            botstring << FCSL(" [talent]");
         if (spellInfo->IsPassive())
-            botstring << " [passive]";
+            botstring << FCSL(" [passive]");
         if ((spellInfo->Attributes & SPELL_ATTR0_HIDDEN_CLIENTSIDE) ||
             (spellInfo->AttributesEx & SPELL_ATTR1_DONT_DISPLAY_IN_AURA_BAR))
-            botstring << " [hidden]";
+            botstring << FCSL(" [hidden]");
         if (unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->HasSpell(id))
-            botstring << " [known]";
+            botstring << FCSL(" [known]");
         else if (unit == me && GetSpell(spellInfo->GetFirstRankSpell()->Id))
-            botstring << " [ability]";
+            botstring << FCSL(" [ability]");
     }
     botstring.precision(1);
     for (uint8 i = STAT_STRENGTH; i != MAX_STATS; ++i)
@@ -1522,12 +1523,12 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
         std::string mystat;
         switch (i)
         {
-            case STAT_STRENGTH: mystat = "str"; break;
-            case STAT_AGILITY: mystat = "agi"; break;
-            case STAT_STAMINA: mystat = "sta"; break;
-            case STAT_INTELLECT: mystat = "int"; break;
-            case STAT_SPIRIT: mystat = "spi"; break;
-            default: mystat = "unk stat"; break;
+            case STAT_STRENGTH: mystat = FCSL("str"); break;
+            case STAT_AGILITY: mystat = FCSL("agi"); break;
+            case STAT_STAMINA: mystat = FCSL("sta"); break;
+            case STAT_INTELLECT: mystat = FCSL("int"); break;
+            case STAT_SPIRIT: mystat = FCSL("spi"); break;
+            default: mystat = FCSL("unk stat"); break;
         }
         //ch.PSendSysMessage("base %s: %.1f", mystat.c_str(), unit->GetCreateStat(Stats(i));
         float totalstat = unit->GetTotalStatValue(Stats(i));
@@ -1548,35 +1549,35 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
             if (t >= BOT_STAT_MOD_MANA)
                 totalstat = GetTotalBotStat(t);
         }
-        botstring << "\ntotal " << mystat << ": " << float(totalstat);
+        botstring << endl << FCSL("total ") << mystat << ": " << float(totalstat);
     }
     botstring.precision(2);
-    botstring << "\nMelee AP: " << int32(unit->GetTotalAttackPowerValue(BASE_ATTACK));
-    botstring << "\nRanged AP: " << int32(unit->GetTotalAttackPowerValue(RANGED_ATTACK));
-    botstring << "\narmor: " << uint32(unit->GetArmor());
-    botstring << "\ncrit: " << float(crit + unit->GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT) + unit->GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT)) << " pct";
-    botstring << "\ndefense: " << uint32(unit->GetDefenseSkillValue());
-    botstring << "\nmiss: " << float(unit->GetUnitMissChance(BASE_ATTACK));
-    botstring << "\ndodge: " << float(unit->GetUnitDodgeChance());
-    botstring << "\nparry: " << float(unit->GetUnitParryChance());
-    botstring << "\nblock: " << float(unit->GetUnitBlockChance());
-    botstring << "\nblock value: " << uint32(unit->GetShieldBlockValue());
-    botstring << "\nDamage taken melee: " << float(dmg_taken_phy * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, SPELL_SCHOOL_MASK_NORMAL));
-    botstring << "\nDamage taken spell: " << float(dmg_taken_mag * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, SPELL_SCHOOL_MASK_MAGIC));
+    botstring << endl << FCSL("Melee AP: ") << int32(unit->GetTotalAttackPowerValue(BASE_ATTACK));
+    botstring << endl << FCSL("Ranged AP: ") << int32(unit->GetTotalAttackPowerValue(RANGED_ATTACK));
+    botstring << endl << FCSL("armor: ") << uint32(unit->GetArmor());
+    botstring << endl << FCSL("crit: ") << float(crit + unit->GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT) + unit->GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT)) << " pct";
+    botstring << endl << FCSL("defense: ") << uint32(unit->GetDefenseSkillValue());
+    botstring << endl << FCSL("miss: ") << float(unit->GetUnitMissChance(BASE_ATTACK));
+    botstring << endl << FCSL("dodge: ") << float(unit->GetUnitDodgeChance());
+    botstring << endl << FCSL("parry: ") << float(unit->GetUnitParryChance());
+    botstring << endl << FCSL("block: ") << float(unit->GetUnitBlockChance());
+    botstring << endl << FCSL("block value: ") << uint32(unit->GetShieldBlockValue());
+    botstring << endl << FCSL("Damage taken melee: ") << float(dmg_taken_phy * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, SPELL_SCHOOL_MASK_NORMAL));
+    botstring << endl << FCSL("Damage taken spell: ") << float(dmg_taken_mag * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, SPELL_SCHOOL_MASK_MAGIC));
 
     WeaponAttackType type = BASE_ATTACK;
     float attSpeed = (unit->GetAttackTime(type) * unit->m_modAttackSpeedPct[type])/1000.f;
-    botstring << "\nDamage range mainhand: min: " << int32(unit->GetFloatValue(UNIT_FIELD_MINDAMAGE)) << ", max: " << int32(unit->GetFloatValue(UNIT_FIELD_MAXDAMAGE));
-    botstring << "\nDamage mult mainhand: " << float(unit->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, BASE_PCT)*unit->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT));
-    botstring << "\nAttack time mainhand: " << float(attSpeed)
+    botstring << endl << FCSL("Damage range mainhand: min: ") << int32(unit->GetFloatValue(UNIT_FIELD_MINDAMAGE)) << FCSL(", max: ") << int32(unit->GetFloatValue(UNIT_FIELD_MAXDAMAGE));
+    botstring << endl << FCSL("Damage mult mainhand: ") << float(unit->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, BASE_PCT)*unit->GetModifierValue(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT));
+    botstring << endl << FCSL("Attack time mainhand: ") << float(attSpeed)
         << " (" << float(((unit->GetFloatValue(UNIT_FIELD_MINDAMAGE) + unit->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2) / attSpeed) << " DPS)";
     if (unit->haveOffhandWeapon())
     {
         type = OFF_ATTACK;
         attSpeed = (unit->GetAttackTime(type) * unit->m_modAttackSpeedPct[type])/1000.f;
-        botstring << "\nDamage range offhand: min: " << int32(unit->GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE)) << ", max: " << int32(unit->GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE));
-        botstring << "\nDamage mult offhand: " << float(unit->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, BASE_PCT)*unit->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_PCT));
-        botstring << "\nAttack time offhand: " << float(attSpeed)
+        botstring << endl << FCSL("Damage range offhand: min: ") << int32(unit->GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE)) << FCSL(", max: ") << int32(unit->GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE));
+        botstring << endl << FCSL("Damage mult offhand: ") << float(unit->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, BASE_PCT)*unit->GetModifierValue(UNIT_MOD_DAMAGE_OFFHAND, TOTAL_PCT));
+        botstring << endl << FCSL("Attack time offhand: ") << float(attSpeed)
             << " (" << float(((unit->GetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE) + unit->GetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE)) / 2) / attSpeed) << " DPS)";
     }
     if (unit != me ||
@@ -1588,33 +1589,33 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
     {
         type = RANGED_ATTACK;
         attSpeed = (unit->GetAttackTime(type) * unit->m_modAttackSpeedPct[type])/1000.f;
-        botstring << "\nDamage range ranged: min: " << int32(unit->GetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE)) << ", max: " << int32(unit->GetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE));
-        botstring << "\nDamage mult ranged: " << float(unit->GetModifierValue(UNIT_MOD_DAMAGE_RANGED, BASE_PCT)*unit->GetModifierValue(UNIT_MOD_DAMAGE_RANGED, TOTAL_PCT));
-        botstring << "\nAttack time ranged: " << float(attSpeed)
+        botstring << endl << FCSL("Damage range ranged: min: ") << int32(unit->GetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE)) << FCSL(", max: ") << int32(unit->GetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE));
+        botstring << endl << FCSL("Damage mult ranged: ") << float(unit->GetModifierValue(UNIT_MOD_DAMAGE_RANGED, BASE_PCT)*unit->GetModifierValue(UNIT_MOD_DAMAGE_RANGED, TOTAL_PCT));
+        botstring << endl << FCSL("Attack time ranged: ") << float(attSpeed)
             << " (" << float(((unit->GetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE) + unit->GetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE)) / 2) / attSpeed)
-            << " (" << float(unit->GetTypeId() == TYPEID_PLAYER ? unit->ToPlayer()->GetAmmoDPS() : unit->ToCreature()->GetCreatureAmmoDPS()) << " from ammo) DPS)";
+            << " (" << float(unit->GetTypeId() == TYPEID_PLAYER ? unit->ToPlayer()->GetAmmoDPS() : unit->ToCreature()->GetCreatureAmmoDPS()) << FCSL(" from ammo) DPS)");
     }
-    botstring << "\nbase hp: " << int32(unit->GetCreateHealth());
-    botstring << "\ntotal hp: " << int32(unit->GetMaxHealth());
-    botstring << "\nbase mana: " << int32(unit->GetCreateMana());
-    botstring << "\ntotal mana: " << int32(unit->GetMaxPower(POWER_MANA));
+    botstring << endl << FCSL("base hp: ") << int32(unit->GetCreateHealth());
+    botstring << endl << FCSL("total hp: ") << int32(unit->GetMaxHealth());
+    botstring << endl << FCSL("base mana: ") << int32(unit->GetCreateMana());
+    botstring << endl << FCSL("total mana: ") << int32(unit->GetMaxPower(POWER_MANA));
     if (unit->GetMaxPower(POWER_MANA) > 1 && unit->getPowerType() != POWER_MANA)
-        botstring << "\ncur mana: " << int32(unit->GetPower(POWER_MANA));
+        botstring << endl << FCSL("cur mana: ") << int32(unit->GetPower(POWER_MANA));
 
     if (unit == me)
     {
-        botstring << "\nspell power: " << int32(me->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC));
-        botstring << "\nhealth regen_5 bonus: " << int32(_getTotalBotStat(BOT_STAT_MOD_HEALTH_REGEN));
+        botstring << endl << FCSL("spell power: ") << int32(me->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC));
+        botstring << endl << FCSL("health regen_5 bonus: ") << int32(_getTotalBotStat(BOT_STAT_MOD_HEALTH_REGEN));
         if (me->GetMaxPower(POWER_MANA) > 1)
         {
-            botstring << "\nmana regen_5 casting: " << float((_botclass == BOT_CLASS_SPHYNX ? -1.f : 1.f) * me->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) * sWorld->getRate(RATE_POWER_MANA) * 5.0f);
-            botstring << "\nmana regen_5 no cast: " << float((_botclass == BOT_CLASS_SPHYNX ? -1.f : 1.f) * me->GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * sWorld->getRate(RATE_POWER_MANA) * 5.0f);
+            botstring << endl << FCSL("mana regen_5 casting: ") << float((_botclass == BOT_CLASS_SPHYNX ? -1.f : 1.f) * me->GetFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER) * sWorld->getRate(RATE_POWER_MANA) * 5.0f);
+            botstring << endl << FCSL("mana regen_5 no cast: ") << float((_botclass == BOT_CLASS_SPHYNX ? -1.f : 1.f) * me->GetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER) * sWorld->getRate(RATE_POWER_MANA) * 5.0f);
         }
-        botstring << "\nhaste: " << (haste >= 0 ? "+" : "-") << float(haste) << " pct";
-        botstring << "\nhit: +" << float(hit) << " pct";
-        botstring << "\nexpertise: " << int32(expertise) << " (-" << float(float(expertise) * 0.25f) << " pct)";
-        botstring << "\narmor penetration: " << float(me->GetCreatureArmorPenetrationCoef()) << " pct";
-        botstring << "\nspell penetration: " << uint32(spellpen);
+        botstring << endl << FCSL("haste: ") << (haste >= 0 ? "+" : "-") << float(haste) << " pct";
+        botstring << endl << FCSL("hit: +") << float(hit) << " pct";
+        botstring << endl << FCSL("expertise: ") << int32(expertise) << " (-" << float(float(expertise) * 0.25f) << " pct)";
+        botstring << endl << FCSL("armor penetration: ") << float(me->GetCreatureArmorPenetrationCoef()) << " pct";
+        botstring << endl << FCSL("spell penetration: ") << uint32(spellpen);
 
         for (uint8 i = SPELL_SCHOOL_HOLY; i != MAX_SPELL_SCHOOL; ++i)
         {
@@ -1623,25 +1624,22 @@ void bot_ai::_listAuras(Player const* player, Unit const* unit) const
             const char* resist = NULL;
             switch (i)
             {
-                case 1: resist = "holy";   break;
-                case 2: resist = "fire";   break;
-                case 3: resist = "nature"; break;
-                case 4: resist = "frost";  break;
-                case 5: resist = "shadow"; break;
-                case 6: resist = "arcane"; break;
+                case 1: resist = FCSL("holy");   break;
+                case 2: resist = FCSL("fire");   break;
+                case 3: resist = FCSL("nature"); break;
+                case 4: resist = FCSL("frost");  break;
+                case 5: resist = FCSL("shadow"); break;
+                case 6: resist = FCSL("arcane"); break;
             }
-            botstring << "\nResistance: " << resist << ": " << uint32(curresist);
+            botstring << endl << FCSL("Resistance: ") << resist << ": " << uint32(curresist);
         }
-        botstring << "\nBotCommandState: " << (m_botCommandState == COMMAND_FOLLOW ? "Follow" : m_botCommandState == COMMAND_ATTACK ? "Attack" : m_botCommandState == COMMAND_STAY ? "Stay" : m_botCommandState == COMMAND_ABANDON ? "Reset" : "none");
+        botstring << endl << FCSL("BotCommandState: ") << (m_botCommandState == COMMAND_FOLLOW ? FCSL("Follow") : m_botCommandState == COMMAND_ATTACK ? FCSL("Attack") : m_botCommandState == COMMAND_STAY ? FCSL("Stay") : m_botCommandState == COMMAND_ABANDON ? FCSL("Reset") : FCSL("none"));
         if (!IAmFree())
-            botstring << "\nFollow distance: " << uint32(master->GetBotMgr()->GetBotFollowDist());
+            botstring << endl << FCSL("Follow distance: ") << uint32(master->GetBotMgr()->GetBotFollowDist());
 
         //botstring << "\nBoot timer: " << int32(_bootTimer);
-        botstring << "\nBot roles mask main: " << uint32(_roleMask & BOT_ROLE_MASK_MAIN);
-        botstring << "\nBot roles mask gathering: " << uint32(_roleMask & BOT_ROLE_MASK_GATHERING);
-
-        botstring << "\nPvP kills: " << uint32(_pvpKillsCount) << ", players: " << uint32(_playerKillsCount) << ", total: " << uint32(_killsCount);
-        botstring << "\nDied " << uint32(_deathsCount) << " times";
+        botstring << acore::StringFormat("\nBot roles mask main: %u\nBot roles mask gathering: %u\nPvP kills: %u, players: %u,total: %u\nDied %u times",
+            uint32(_roleMask& BOT_ROLE_MASK_MAIN), uint32(_roleMask& BOT_ROLE_MASK_GATHERING), uint32(_pvpKillsCount), uint32(_playerKillsCount), uint32(_killsCount), uint32(_deathsCount));
 
         //debug
         //for (uint32 i = 0; i != 148; ++i)
@@ -4830,7 +4828,7 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
 
     if (player->IsGameMaster())
     {
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Debug>", GOSSIP_SENDER_DEBUG, GOSSIP_ACTION_INFO_DEF + 1);
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, FCSL("<Debug>"), GOSSIP_SENDER_DEBUG, GOSSIP_ACTION_INFO_DEF + 1);
         menus = true;
     }
 
@@ -4866,18 +4864,18 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
             std::ostringstream message2;
             if (_botclass == BOT_CLASS_SPHYNX)
             {
-                message1 << "Are you sure you want to risk drawing " << me->GetName() << "'s attention?";
-                message2 << "<Insert Coin>";
+                message1 << acore::StringFormat(FCSL("Are you sure you want to risk drawing %s's attention?"), me->GetName());
+                message2 << FCSL("<Insert Coin>");
             }
             else if (_botclass == BOT_CLASS_DREADLORD)
             {
-                message1 << "Do you want to entice " << me->GetName() << '?';
-                message2 << "<Try to make an offering>";
+                message1 << acore::StringFormat(FCSL("Do you want to entice %s?"), me->GetName());
+                message2 << FCSL("<Try to make an offering>");
             }
             else
             {
-                message1 << "Do you wish to hire " << me->GetName() << '?';
-                message2 << "<Hire bot>";
+                message1 << acore::StringFormat(FCSL("Do you wish to hire %s?"),me->GetName());
+                message2 << FCSL("<Hire bot>");
             }
 
             if (!reason)
@@ -4943,9 +4941,7 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
                     //Allow rogues to gain skill with bot's help
                     if (me->getLevel() >= 16/* && !player->HasSkill(SKILL_LOCKPICKING)*/)
                     {
-                        std::ostringstream msg;
-                        msg << "Help me pick a lock (" << uint32(me->getLevel() * 5) << ")";
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, msg.str().c_str(), GOSSIP_SENDER_CLASS, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, acore::StringFormat("Help me pick a lock (%u)", uint32(me->getLevel() * 5)).c_str(), GOSSIP_SENDER_CLASS, GOSSIP_ACTION_INFO_DEF + 1);
                         menus = true;
                     }
                     break;
@@ -5012,11 +5008,8 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
                 default:
                     break;
             }
-
-            std::ostringstream astr;
-            astr << "Are you going to abandon " << me->GetName() << "? You may regret it...";
             player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TAXI, "You are dismissed",
-                GOSSIP_SENDER_DISMISS, GOSSIP_ACTION_INFO_DEF + 1, astr.str().c_str(), 0, false);
+                GOSSIP_SENDER_DISMISS, GOSSIP_ACTION_INFO_DEF + 1, acore::StringFormat("Are you going to abandon %s?You may regret it...",me->GetName()).c_str(), 0, false);
 
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Pull yourself together, damnit", GOSSIP_SENDER_TROUBLESHOOTING, GOSSIP_ACTION_INFO_DEF + 1);
         }
@@ -5126,10 +5119,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         }
                         if (!food)
                         {
-                            std::string errorstr = "I can't conjure ";
-                            errorstr += iswater ? "water" : "food";
-                            errorstr += " yet";
-                            BotWhisper(errorstr.c_str(), player);
+                            BotWhisper(acore::StringFormat("I can't conjure %s yet", iswater ? "water" : "food").c_str(), player);
                             //player->PlayerTalkClass->ClearMenus();
                             //return OnGossipHello(player, me);
                             break;
@@ -5217,9 +5207,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         player->VisitNearbyGridObject(4.f, searcher);
                         if (obj)
                         {
-                            std::ostringstream msg;
-                            msg << obj->GetGOInfo()->name << " (dist = " << player->GetExactDist(obj) << ")";
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, msg.str().c_str(), GOSSIP_SENDER_CLASS_ACTION, GOSSIP_ACTION_INFO_DEF + ++count);
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, acore::StringFormat("%s (dist = %f)", obj->GetGOInfo()->name, player->GetExactDist(obj)).c_str(), GOSSIP_SENDER_CLASS_ACTION, GOSSIP_ACTION_INFO_DEF + ++count);
                         }
 
                         //2 Inventory
