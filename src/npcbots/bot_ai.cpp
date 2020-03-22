@@ -4941,7 +4941,7 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
                     //Allow rogues to gain skill with bot's help
                     if (me->getLevel() >= 16/* && !player->HasSkill(SKILL_LOCKPICKING)*/)
                     {
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, acore::StringFormat("Help me pick a lock (%u)", uint32(me->getLevel() * 5)).c_str(), GOSSIP_SENDER_CLASS, GOSSIP_ACTION_INFO_DEF + 1);
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, acore::StringFormat(FCSL("Help me pick a lock (%u)"), uint32(me->getLevel() * 5)).c_str(), GOSSIP_SENDER_CLASS, GOSSIP_ACTION_INFO_DEF + 1);
                         menus = true;
                     }
                     break;
@@ -5009,7 +5009,7 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
                     break;
             }
             player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_TAXI, "You are dismissed",
-                GOSSIP_SENDER_DISMISS, GOSSIP_ACTION_INFO_DEF + 1, acore::StringFormat("Are you going to abandon %s?You may regret it...",me->GetName()).c_str(), 0, false);
+                GOSSIP_SENDER_DISMISS, GOSSIP_ACTION_INFO_DEF + 1, acore::StringFormat(FCSL("Are you going to abandon %s?You may regret it..."),me->GetName()).c_str(), 0, false);
 
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Pull yourself together, damnit", GOSSIP_SENDER_TROUBLESHOOTING, GOSSIP_ACTION_INFO_DEF + 1);
         }
@@ -5119,7 +5119,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         }
                         if (!food)
                         {
-                            BotWhisper(acore::StringFormat("I can't conjure %s yet", iswater ? "water" : "food").c_str(), player);
+                            BotWhisper(acore::StringFormat(FCSL("I can't conjure %s yet"), iswater ? "water" : "food").c_str(), player);
                             //player->PlayerTalkClass->ClearMenus();
                             //return OnGossipHello(player, me);
                             break;
@@ -5207,7 +5207,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         player->VisitNearbyGridObject(4.f, searcher);
                         if (obj)
                         {
-                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, acore::StringFormat("%s (dist = %f)", obj->GetGOInfo()->name, player->GetExactDist(obj)).c_str(), GOSSIP_SENDER_CLASS_ACTION, GOSSIP_ACTION_INFO_DEF + ++count);
+                            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, acore::StringFormat(FCSL("%s (dist = %f)"), obj->GetGOInfo()->name, player->GetExactDist(obj)).c_str(), GOSSIP_SENDER_CLASS_ACTION, GOSSIP_ACTION_INFO_DEF + ++count);
                         }
 
                         //2 Inventory
@@ -5811,7 +5811,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 //uncomment if needed
                 //msg << " in slot " << uint32(i) << " (" << _getNameForSlot(i + 1) << ')';
                 if (i <= BOT_SLOT_RANGED && einfo->ItemEntry[i] == item->GetEntry())
-                    msg << " |cffe6cc80|h[!visual only!]|h|r";
+                    msg << FCSL(" |cffe6cc80|h[!visual only!]|h|r");
                 BotWhisper(msg.str().c_str(), player);
             }
 
@@ -5834,7 +5834,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
             _AddItemLink(player, item, msg, false);
 
             if (slot <= BOT_SLOT_RANGED && einfo->ItemEntry[slot] == item->GetEntry())
-                msg << " |cffe6cc80|h[!visual only!]|h|r";
+                msg << FCSL(" |cffe6cc80|h[!visual only!]|h|r");
 
             BotWhisper(msg.str().c_str(), player);
 
@@ -5914,18 +5914,18 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
             //s2.2.0 add current item (with return)
             uint8 slot = action - GOSSIP_ACTION_INFO_DEF;
             std::ostringstream str;
-            str << "Equipped: ";
+            str << FCSL("Equipped: ");
             if (Item const* item = _equips[slot])
             {
                 _AddItemLink(player, item, str);
                 if (slot <= BOT_SLOT_RANGED && einfo->ItemEntry[slot] == item->GetEntry())
-                    str << " |cffe6cc80|h[!visual only!]|h|r";
+                    str << FCSL(" |cffe6cc80|h[!visual only!]|h|r");
 
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, str.str().c_str(), GOSSIP_SENDER_EQUIPMENT_INFO, action);
             }
             else
             {
-                str << "nothing";
+                str << FCSL("nothing");
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, str.str().c_str(), GOSSIP_SENDER_EQUIPMENT_SHOW, action);
             }
 
@@ -6425,7 +6425,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 spellInfo = sSpellMgr->GetSpellInfo(basespell); //always valid
 
                 std::ostringstream name;
-                name << "Use ";
+                name << FCSL("Use ");
                 _AddSpellLink(player, spellInfo, name);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, name.str().c_str(), GOSSIP_SENDER_ABILITIES_USE, GOSSIP_ACTION_INFO_DEF + basespell);
             }
@@ -6635,7 +6635,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                     //    ostr << "unknown (" << _ownerGuid << ')';
                     //BotWhisper(ostr.str().c_str(), player);
                     ChatHandler ch(player->GetSession());
-                    ch.PSendSysMessage("%s will not join you until owner dismisses %s", me->GetName().c_str(), (me->getGender() == GENDER_MALE ? "him" : "her"));
+                    ch.PSendSysMessage("%s will not join you until owner dismisses %s", me->GetName().c_str(), (me->getGender() == GENDER_MALE ? FCSL("him") : FCSL("her")));
                     break;
                 }
 
@@ -6647,9 +6647,8 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                     break;
                 }
                 if (_botclass == BOT_CLASS_SPHYNX && player->getLevel() < 60)
-                {
-                    std::string msg1 = me->GetName() + " is not convinced by " + player->GetName() + "'s actions";
-                    me->MonsterTextEmote(msg1.c_str(), player);
+                {                    ;
+                    me->MonsterTextEmote(acore::StringFormat(FCSL("%s is not convinced by %s's actions"), me->GetName(), player->GetName()).c_str(), player);
                     ChatHandler ch(player->GetSession());
                     ch.PSendSysMessage("%s will not join you until you are level 60", me->GetName().c_str());
                     break;
@@ -6687,8 +6686,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 {
                     if (_botclass == BOT_CLASS_SPHYNX)
                     {
-                        std::string msg1 = me->GetName() + " makes a grinding sound and begins to follow " + player->GetName();
-                        me->MonsterTextEmote(msg1.c_str(), player);
+                        me->MonsterTextEmote(acore::StringFormat(FCSL("%s makes a grinding sound and begins to follow %s"), me->GetName(), player->GetName()).c_str(), player);
                     }
                     else
                         BotWhisper("I am ready", player);
@@ -6712,14 +6710,8 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 {
                     case 1: //has owner
                     {
-                        std::ostringstream ostr;
                         std::string name;
-                        ostr << "Go away. I serve my master ";
-                        if (sObjectMgr->GetPlayerNameByGUID(MAKE_NEW_GUID(_ownerGuid, 0, HIGHGUID_PLAYER), name))
-                            ostr << name;
-                        else
-                            ostr << "unknown (" << _ownerGuid << ')';
-                        BotWhisper(ostr.str().c_str(), player);
+                        BotWhisper(acore::StringFormat(FCSL("Go away. I serve my master %s"), sObjectMgr->GetPlayerNameByGUID(MAKE_NEW_GUID(_ownerGuid, 0, HIGHGUID_PLAYER), name) ? name : acore::StringFormat(FCSL("unknown (%u)"), _ownerGuid)).c_str(), player);
                         ch.PSendSysMessage("%s will not join you until owner dismisses %s", me->GetName().c_str(), (me->getGender() == GENDER_MALE ? "him" : "her"));
                         break;
                     }
@@ -6729,10 +6721,7 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         break;
                     case 3: //not enough money
                     {
-                        std::string str = "You don't have enough money (";
-                        str += BotMgr::GetNpcBotCostStr(player->getLevel(), me);
-                        str += ")!";
-                        ch.SendSysMessage(str.c_str());
+                        ch.SendSysMessage(acore::StringFormat(FCSL("You don't have enough money (%s)!"), BotMgr::GetNpcBotCostStr(player->getLevel(), me)).c_str());
                         player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
                         BotSay("...", player);
                         break;
@@ -6766,10 +6755,8 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
             {
                 if (!(i <= BOT_SLOT_RANGED ? _resetEquipment(i) : _unequip(i)))
                 {
-                    std::ostringstream estr;
-                    estr << "Cannot reset equipment in slot " << uint32(i) << " (" << _getNameForSlot(i) << ")! Cannot dismiss bot!";
                     ChatHandler ch(player->GetSession());
-                    ch.SendSysMessage(estr.str().c_str());
+                    ch.SendSysMessage(acore::StringFormat(FCSL("Cannot reset equipment in slot %u (%s)! Cannot dismiss bot!"), uint32(i), _getNameForSlot(i)).c_str());
                     abort = true;
                     break;
                 }
@@ -6828,9 +6815,8 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
         case GOSSIP_SENDER_FORMATION:
         {
             subMenu = true;
-            std::ostringstream diststr;
-            diststr << "Follow distance (current: " << uint32(master->GetBotMgr()->GetBotFollowDist()) << ')';
-            player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_CHAT, diststr.str(),
+            player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, GOSSIP_ICON_CHAT,
+                acore::StringFormat(FCSL("Follow distance (current: %u)"), uint32(master->GetBotMgr()->GetBotFollowDist())),
                 GOSSIP_SENDER_FORMATION_FOLLOW_DISTANCE_SET, GOSSIP_ACTION_INFO_DEF + 1, "", 0, true);
 
             if (HasRole(BOT_ROLE_RANGED))
@@ -6860,14 +6846,11 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
             uint8 mode = master->GetBotMgr()->GetBotAttackRangeMode();
             player->ADD_GOSSIP_ITEM(mode == BOT_ATTACK_RANGE_SHORT ? GOSSIP_ICON_BATTLE : GOSSIP_ICON_CHAT, "Short range attacks", GOSSIP_SENDER_FORMATION_ATTACK_DISTANCE_SET, GOSSIP_ACTION_INFO_DEF + 1);
             player->ADD_GOSSIP_ITEM(mode == BOT_ATTACK_RANGE_LONG ? GOSSIP_ICON_BATTLE : GOSSIP_ICON_CHAT, "Long range attacks", GOSSIP_SENDER_FORMATION_ATTACK_DISTANCE_SET, GOSSIP_ACTION_INFO_DEF + 2);
-
-            std::ostringstream diststr;
-            if (mode == BOT_ATTACK_RANGE_EXACT)
-                diststr << "Exact (current: " << uint32(master->GetBotMgr()->GetBotExactAttackRange()) << ')';
-            else
-                diststr << "Exact (0-50)";
             player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, mode == BOT_ATTACK_RANGE_EXACT ? GOSSIP_ICON_BATTLE : GOSSIP_ICON_CHAT,
-                diststr.str(), GOSSIP_SENDER_FORMATION_ATTACK_DISTANCE_SET, GOSSIP_ACTION_INFO_DEF + 3, "", 0, true);
+                mode == BOT_ATTACK_RANGE_EXACT ?
+                acore::StringFormat(FCSL("Exact (current: %u)"), uint32(master->GetBotMgr()->GetBotExactAttackRange())) :
+                FCSL("Exact (0-50)"),
+                GOSSIP_SENDER_FORMATION_ATTACK_DISTANCE_SET, GOSSIP_ACTION_INFO_DEF + 3, "", 0, true);
 
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "BACK", 1, GOSSIP_ACTION_INFO_DEF + 4);
             break;
@@ -7078,10 +7061,8 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                         std::ostringstream sstr;
                         spellInfo = sSpellMgr->GetSpellInfo(itr->first); //always valid
                         _AddSpellLink(player, spellInfo, sstr);
-                        sstr << " id: " <<  itr->second->spellId << ", base: " << itr->first
-                            << ", cd: " << itr->second->cooldown << ", base: " << std::max<uint32>(spellInfo->RecoveryTime, spellInfo->CategoryRecoveryTime);
-                        if (itr->second->enabled == false)
-                            sstr << " (disabled)";
+                        sstr << acore::StringFormat(FCSL(" id: %u, base: %u, cd: %u, base: %u%s"), itr->second->spellId, itr->first, itr->second->cooldown, std::max<uint32>(spellInfo->RecoveryTime, spellInfo->CategoryRecoveryTime), itr->second->enabled ? "" : " (disabled)");
+
                         ch.PSendSysMessage("%u) %s", counter, sstr.str().c_str());
                     }
                     break;
@@ -7094,9 +7075,9 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                     sLog->outString("Re-Loading config settings...");
                     sWorld->LoadConfigSettings(true);
                     sMapMgr->InitializeVisibilityDistanceInfo();
-                    ch.SendGlobalGMSysMessage("World config settings reloaded.");
+                    ch.SendGlobalGMSysMessage(FCSL("World config settings reloaded."));
                     BotMgr::ReloadConfig();
-                    ch.SendGlobalGMSysMessage("NpcBot config settings reloaded.");
+                    ch.SendGlobalGMSysMessage(FCSL("NpcBot config settings reloaded."));
 
                     break;
                 }
@@ -7115,18 +7096,11 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
 
             std::ostringstream ostr;
             std::string name;
-            ostr << "Bot: " << me->GetName()
-                << " (Id: " << me->GetEntry()
-                << ", guidlow: " << me->GetGUIDLow()
-                << ", faction: " << me->getFaction()
-                << "). owner: ";
-            if (_ownerGuid && sObjectMgr->GetPlayerNameByGUID(MAKE_NEW_GUID(_ownerGuid, 0, HIGHGUID_PLAYER), name))
-                ostr << name << " (" << _ownerGuid << ')';
-            else
-                ostr << "none";
+
+            ostr << acore::StringFormat(FCSL("Bot: %s (Id: %u, guidlow: %u, faction: %u). owner: %s"), me->GetName(), me->GetEntry(), me->GetGUIDLow(), me->getFaction(),
+                _ownerGuid&& sObjectMgr->GetPlayerNameByGUID(MAKE_NEW_GUID(_ownerGuid, 0, HIGHGUID_PLAYER), name) ? acore::StringFormat("%s(%u)", name, _ownerGuid) : FCSL("none"));
 
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ostr.str().c_str(), GOSSIP_SENDER_DEBUG_ACTION, GOSSIP_ACTION_INFO_DEF + 0);
-
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Reset Owner>", GOSSIP_SENDER_DEBUG_ACTION, GOSSIP_ACTION_INFO_DEF + 1);
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<Reset Stats>", GOSSIP_SENDER_DEBUG_ACTION, GOSSIP_ACTION_INFO_DEF + 2);
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "<List Stats>", GOSSIP_SENDER_DEBUG_ACTION, GOSSIP_ACTION_INFO_DEF + 3);
@@ -8146,9 +8120,9 @@ bool bot_ai::_unequip(uint8 slot)
         if (msg != EQUIP_ERR_OK)
         {
             std::ostringstream istr, iistr;
-            istr << "Cannot unequip ";
+            istr << FCSL("Cannot unequip ");
             _AddItemLink(master, item, iistr, false);
-            istr << iistr.str() << " for some stupid reason! Sending through mail";
+            istr << iistr.str() << FCSL(" for some stupid reason! Sending through mail");
             ChatHandler ch(master->GetSession());
             ch.SendSysMessage(istr.str().c_str());
 
@@ -9171,43 +9145,43 @@ char const* bot_ai::_getNameForSlot(uint8 slot) const
     switch (slot)
     {
         case BOT_SLOT_MAINHAND:
-            return "Main Hand Weapon";
+            return FCSL("Main Hand Weapon");
         case BOT_SLOT_OFFHAND:
-            return "Offhand Weapon";
+            return FCSL("Offhand Weapon");
         case BOT_SLOT_RANGED:
-            return "Ranged Weapon";
+            return FCSL("Ranged Weapon");
         case BOT_SLOT_HEAD:
-            return "Head";
+            return FCSL("Head");
         case BOT_SLOT_SHOULDERS:
-            return "Shoulders";
+            return FCSL("Shoulders");
         case BOT_SLOT_CHEST:
-            return "Chest";
+            return FCSL("Chest");
         case BOT_SLOT_WAIST:
-            return "Waist";
+            return FCSL("Waist");
         case BOT_SLOT_LEGS:
-            return "Legs";
+            return FCSL("Legs");
         case BOT_SLOT_FEET:
-            return "Feet";
+            return FCSL("Feet");
         case BOT_SLOT_WRIST:
-            return "Wrist";
+            return FCSL("Wrist");
         case BOT_SLOT_HANDS:
-            return "Hands";
+            return FCSL("Hands");
         case BOT_SLOT_BACK:
-            return "Back";
+            return FCSL("Back");
         case BOT_SLOT_BODY:
-            return "Body";
+            return FCSL("Body");
         case BOT_SLOT_FINGER1:
-            return "Finger1";
+            return FCSL("Finger1");
         case BOT_SLOT_FINGER2:
-            return "Finger2";
+            return FCSL("Finger2");
         case BOT_SLOT_TRINKET1:
-            return "Trinket1";
+            return FCSL("Trinket1");
         case BOT_SLOT_TRINKET2:
-            return "Trinket2";
+            return FCSL("Trinket2");
         case BOT_SLOT_NECK:
-            return "Neck";
+            return FCSL("Neck");
         default:
-            return "Unknown";
+            return FCSL("Unknown");
     }
 }
 
@@ -9293,26 +9267,24 @@ char const* bot_ai::GetRoleString(uint16 role) const
         //case BOT_ROLE_NONE:
         //    return "???";
         case BOT_ROLE_TANK:
-            return "Tanking";
+            return FCSL("Tanking");
         case BOT_ROLE_DPS:
-            return "DPS";
+            return FCSL("DPS");
         case BOT_ROLE_HEAL:
-            return "Heal";
+            return FCSL("Heal");
         case BOT_ROLE_RANGED:
-            return "Ranged";
+            return FCSL("Ranged");
         case BOT_ROLE_GATHERING_MINING:
-            return "Miner";
+            return FCSL("Miner");
         case BOT_ROLE_GATHERING_HERBALISM:
-            return "Herbalist";
+            return FCSL("Herbalist");
         case BOT_ROLE_GATHERING_SKINNING:
-            return "Skinner";
+            return FCSL("Skinner");
         case BOT_ROLE_GATHERING_ENGINEERING:
-            return "Engineer";
+            return FCSL("Engineer");
         default:
         {
-            std::ostringstream str;
-            str << "role " << uint32(role);
-            return str.str().c_str();
+            return acore::StringFormat(FCSL("role %u"), uint32(role)).c_str();
         }
     }
 }
